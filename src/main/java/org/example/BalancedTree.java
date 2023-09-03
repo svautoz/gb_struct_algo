@@ -7,7 +7,7 @@ package org.example;
 public class BalancedTree {
     Node head = null;
 
-    private static class Node {
+    public static class Node {
         private Node left;
         private Node right;
         private int value;
@@ -16,7 +16,6 @@ public class BalancedTree {
             this.value = value;
             color = 'r';
         }
-
     }
 
     public void add(int value){
@@ -30,17 +29,16 @@ public class BalancedTree {
 
     public void add(int value, Node node){
         if(node.value == value) return;
-        Node newNode = new Node(value);
         if(value > node.value){
             if(node.right == null){
-                node.right = newNode;
+                node.right = new Node(value);
             }else{
                 add(value, node.right);
             }
         }
         if(value < node.value){
             if(node.left == null){
-                node.left = newNode;
+                node.left = new Node(value);;
             }else{
                 add(value, node.left);
             }
@@ -49,7 +47,7 @@ public class BalancedTree {
     }
 
     public Integer find(int value){
-        find(value, head);
+        return find(value, head);
     }
 
     public Integer find(int value, Node node){
@@ -58,26 +56,43 @@ public class BalancedTree {
         if(node.value == value){
             return value;
         }
-        result = find(value, node.left);
-        if(result != null) return result;
-        result = find(value, node.right);
-        return result;
+        if(value > node.value){
+            return find(value, node.right);
+        }else{
+            return find(value, node.left);
+        }
     }
 
     public void balanceTree(Node node){
         if(node == null) return;
-        if(node.color == 'b' && node.left != null && node.right != null && node.left.color == 'r' && node.right.color == 'r'){
-            swapColor(node);
+        if(node.right != null && node.right.color == 'r' && (node.left == null || node.left.color == 'b')){
+            leftTurn(node);
         }
         if(node.left != null && node.left.color == 'r' && node.left.left != null && node.left.left.color == 'r' ){
             rightTurn(node);
         }
+        if(node.color == 'b' && node.left != null && node.right != null && node.left.color == 'r' && node.right.color == 'r'){
+            swapColor(node);
+        }
+    }
+
+    private void leftTurn(Node node) {
+        Node tempNode = new Node(node.value);
+        tempNode.left = node.left;
+        tempNode.right = node.right.left;
+        node.value = node.right.value;
+        node.left = tempNode;
+        node.right = node.right.right;
     }
 
     private void rightTurn(Node node) {
-        Node tempNode = node;
-        node = node.left;
-
+        Node tempNode = new Node(node.value);
+        tempNode.left = node.left.right;
+        tempNode.right = node.right;
+        node.value = node.left.value;
+        node.left = node.left.left;
+        node.right = tempNode;
+        swapColor(node);
     }
 
     private void swapColor(Node node) {
